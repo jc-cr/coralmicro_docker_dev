@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  coral_dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.coralmicro
+    volumes:
+      - ../coralmicro_shared:/coralmicro
+      - /dev/bus/usb:/dev/bus/usb
+    devices:
+      - /dev/ttyACM0:/dev/ttyACM0
+    privileged: true
+    environment:
+      - CORAL_MICRO_DEV=1
+    command: bash_interactive
