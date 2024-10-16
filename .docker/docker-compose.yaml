@@ -1,16 +1,31 @@
 version: '3.8'
 
 services:
-  coral_dev:
+  coral_micro_build:
     build:
       context: .
       dockerfile: Dockerfile.coralmicro
     volumes:
-      - ../coralmicro_shared:/coralmicro
-      - /dev/bus/usb:/dev/bus/usb
-    devices:
-      - /dev/ttyACM0:/dev/ttyACM0
+      - "../coralmicro_shared:/home/dockeruser/coralmicro"
     privileged: true
     environment:
       - CORAL_MICRO_DEV=1
-    command: bash_interactive
+    command: "bash /entrypoint.sh"
+
+  coral_micro_upload:
+    build:
+      context: .
+      dockerfile: Dockerfile.coralmicro
+    privileged: true
+    user: dockeruser
+    group_add:
+      - plugdev
+    devices:
+      - "/dev/bus/usb:/dev/bus/usb"
+    volumes:
+      - "/dev/bus/usb:/dev/bus/usb"
+      - "/run/udev:/run/udev:ro"
+      - "../coralmicro_shared:/home/dockeruser/coralmicro"
+    environment:
+      - CORAL_MICRO_DEV=1
+    command: "python3 scripts/flashtool.py -e detect_faces"

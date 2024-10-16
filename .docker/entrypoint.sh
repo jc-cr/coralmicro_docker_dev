@@ -4,11 +4,13 @@ set -e
 
 # Function to clone and setup the repository if not already present
 setup_repo() {
-    if [ ! -d "/coralmicro/.git" ]; then
+    if [ ! -d "/coralmicro/libs" ]; then
         echo "Cloning Coral Micro repository..."
         git clone --recurse-submodules -j8 https://github.com/google-coral/coralmicro .
         ./setup.sh
         ./build.sh
+        rm -r /coralmicro/.git
+        rm -r /coralmicro/.github
     else
         echo "Coral Micro repository already exists. Skipping setup..."
     fi

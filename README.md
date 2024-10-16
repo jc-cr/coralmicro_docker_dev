@@ -9,8 +9,16 @@ Docker setup for development on coralmicro board. Used to compile, upload, and i
 
 ## Usage
 
-After building the docker image you will now have a docker image with all the necessary tools to compile, upload, and interface with the coralmicro board.
+After building the docker image you will now have a docker image with all the necessary tools to compile, upload to the board.
 
 When used the container's working directory will mount to the `coralmicro_shared` directory. This directory is shared between the host and the container.
 
-`docker compose run --rm coral_dev`
+### Build An Application
+
+`docker compose run coral_micro_build`
+
+### Upload A Built Application
+
+You'll need to open the docker-compose.yml file and change app name in the line "command: "python3 scripts/flashtool.py --app your_apps_name" under the coral_micro_upload service.
+
+`docker compose run coral_micro_upload`
