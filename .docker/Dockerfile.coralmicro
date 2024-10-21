@@ -16,6 +16,9 @@ RUN apt-get update && apt-get install -y \
     python3-protobuf \
     vim \
     screen \
+    usbutils \
+    udev \
+    sudo \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python packages
@@ -23,22 +26,11 @@ RUN python3 -m pip install --upgrade pip setuptools && \
     python3 -m pip install "pyinstaller>=4.6" "semver>=2.13.0,<3" "GitPython>=3.1.24" \
     "py7zr>=0.18.1" "progress>=1.5" "hexformat>=0.2" "hidapi>=0.10.1" "pyserial>=3.5" "pyusb>=1.2.0"
 
-# Create a non-root user
-RUN useradd -m dockeruser
-RUN usermod -aG plugdev dockeruser
+RUN usermod -aG plugdev root
 
-# Create udev rules directory and add USB permissions rule
-RUN mkdir -p /etc/udev/rules.d
+# Set up USB permissions
 RUN echo 'SUBSYSTEM=="usb", MODE="0666"' > /etc/udev/rules.d/99-usb-permissions.rules
 
-# Switch to the non-root user
-USER dockeruser
+WORKDIR /coralmicro
 
-# Set the working directory to the user's home
-WORKDIR /home/dockeruser/coralmicro
-
-# Copy the entrypoint script
-COPY --chown=dockeruser:dockeruser entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
-ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/bin/bash"]

@@ -1,31 +1,61 @@
 version: '3.8'
 
 services:
+  # Setup coral tree env when first clone the repo
+  environment_setup:
+    build:
+      context: .
+      dockerfile: Dockerfile.coralmicro
+    volumes:
+      - ../coralmicro:/coralmicro
+    command: bash -c "./setup.sh && ./build.sh && /bin/bash"
+
+  # Build the coral tree 
   coral_micro_build:
     build:
       context: .
       dockerfile: Dockerfile.coralmicro
     volumes:
-      - "../coralmicro_shared:/home/dockeruser/coralmicro"
+      - ../coralmicro:/coralmicro
     privileged: true
     environment:
       - CORAL_MICRO_DEV=1
-    command: "bash /entrypoint.sh"
+    command: "bash ./build.sh"
 
-  coral_micro_upload:
+  # Upload the program to the coral tree
+  upload_program:
     build:
       context: .
       dockerfile: Dockerfile.coralmicro
+    volumes:
+      - ../coralmicro:/coralmicro
+      - /dev/bus/usb:/dev/bus/usb
+      - /run/udev:/run/udev:ro
     privileged: true
-    user: dockeruser
     group_add:
       - plugdev
     devices:
       - "/dev/bus/usb:/dev/bus/usb"
+      - "/run/udev:/run/udev:ro"
+      - "/dev/ttyACM0:/dev/ttyACM0"
+    # Update the command to upload the program
+    command: "python3 scripts/flashtool.py -e blink_led"
+
+  # For debugging purpose, enter the bash shell
+  enter_bash:
+    build:
+      context: .
+      dockerfile: Dockerfile.coralmicro
     volumes:
+      - ../coralmicro:/coralmicro
+      - /dev/bus/usb:/dev/bus/usb
+      - /run/udev:/run/udev:ro
+    privileged: true
+    group_add:
+      - plugdev
+    devices:
       - "/dev/bus/usb:/dev/bus/usb"
       - "/run/udev:/run/udev:ro"
-      - "../coralmicro_shared:/home/dockeruser/coralmicro"
-    environment:
-      - CORAL_MICRO_DEV=1
-    command: "python3 scripts/flashtool.py -e detect_faces"
+      - "/dev/ttyACM0:/dev/ttyACM0"
+    command: bash
+    network_mode: host
