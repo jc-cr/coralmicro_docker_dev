@@ -13,5 +13,9 @@ Docker setup for in-tree development of the Coral Dev Board Micro.
 ## Usage
 
 After doing the setup, you can interact with the board.
-via `docker compose run enter_bash`
+Steps to flash:
+  1. Hold down USR button on board
+  2. Connect to laptop
+  3. Enter docker container with `docker compose run enter_bash`
+  4. Flash the board with desired program `python3 scripts/flashtool.py -a your_app_name`
 
